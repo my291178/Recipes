@@ -2,15 +2,13 @@
 Что можно приготовить из имеющихся продуктов.
 '''
 
-import json
+from recipes_library import *
 
 
 persons = int(input('Введите количество персон: '))
 
 
-with open("Recipes.json","r") as f:
-    recipes = json.loads(f.read())
-
+recipes = get_recipes()
 
 
 with open("data.json","r") as f:
@@ -18,9 +16,11 @@ with open("data.json","r") as f:
 
 result = []
 
-for name, recipe in recipes.items():
+for name in recipes:
 
     is_valid = True
+    recipe = get_recipe_by_key(name, recipes)
+
     for i in recipe:
         if not fridge[i] >= recipe[i]*persons:
             is_valid = False
@@ -30,3 +30,8 @@ for name, recipe in recipes.items():
         result.append(name)
 
 print(result)
+
+
+
+
+
