@@ -2,43 +2,50 @@
 import json
 
 
-def get_persons():
-    return int(input('Введите количество персон: '))
+class RecipesLibrary:
 
+    def __init__(self, path_to_recipes, path_to_fridge):
+        self._recipes = self._get_json_from_file(path_to_recipes)
+        self._fridge = self._get_json_from_file(path_to_fridge)
+        self._persons = self._get_persons()
 
-def get_recipe_by_key(key, recipes):
-    return recipes[key]["products"]
+    @staticmethod
+    def _get_persons():
+        return int(input('Введите количество персон: '))
 
+    def _get_recipe_by_key(self, key):
+        return self._recipes[key]["products"]
 
-def print_data(result):
-    with open("result.txt", "w") as f:
-        for name in result:
-            f.write(name + "\n")
+    def _print_data(self, data):
+        with open("result.txt", "w") as f:
+            for name in data:
+                f.write(f"{name} {self._get_description_by_key(name)}")
+                f.write("\n")
 
+    @staticmethod
+    def _get_json_from_file(filename):
+        with open(filename, "r") as f:
+            return json.loads(f.read())
 
-def get_json_from_file(filename):
-    with open(filename, "r") as f:
-        return json.loads(f.read())
+    def _get_description_by_key(self, key):
+        return self._recipes[key]["description"]
 
+    def _get_result(self):
+        result = []
+        for name in self._recipes:
 
-def get_description_by_key(resipes, key):
-    return resipes[key]["description"]
+            is_valid = True
+            recipe = self._get_recipe_by_key(name)
 
+            for i in recipe:
+                if not self._fridge[i] >= recipe[i] * self._persons:
+                    is_valid = False
+                    break
 
-def get_result(recipes, fridge, persons):
-    result = []
-    for name in recipes:
+            if is_valid:
+                result.append(name)
 
-        is_valid = True
-        recipe = get_recipe_by_key(name, recipes)
+        return result
 
-        for i in recipe:
-            if not fridge[i] >= recipe[i] * persons:
-                is_valid = False
-                break
-
-        if is_valid:
-            result.append(name)
-
-    return result
-
+    def show_available_recipe(self):
+        self._print_data(self._get_result())
